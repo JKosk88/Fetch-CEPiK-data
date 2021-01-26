@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const RegionDropdown = ({ items, isLoading, onChange, value }) => {
+const RegionDropdown = ({ items, isLoading, onChange, value, error }) => {
 
     const capitalizeFirstLetter = string => {
         return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
@@ -25,7 +25,7 @@ const RegionDropdown = ({ items, isLoading, onChange, value }) => {
         onChange(e);
     }
 
-
+    console.log(error, 'Dropdown.js yyyyyyyyyyyyyyyyyyyyyyyyyyy');
 
     const classes = useStyles();
 
@@ -35,32 +35,35 @@ const RegionDropdown = ({ items, isLoading, onChange, value }) => {
                 ? <FormControl className={classes.formControl}>
                     <InputLabel id="demo-simple-select-label">Region</InputLabel>
                     <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={value}
-                        onChange={handleChange}
-                    >
+                        value={value}>
                     </Select>
                     <FormHelperText>Loading ..</FormHelperText>
                 </FormControl>
-                : <FormControl className={classes.formControl}>
-                    <InputLabel id="demo-simple-select-label">Region</InputLabel>
-                    <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={value}
-                        onChange={handleChange}
-                    >
-                        {items.map(el => {
-                            return (
-                                <MenuItem key={el['klucz-slownika']} value={el['klucz-slownika']} >
-                                    {capitalizeFirstLetter(el['wartosc-slownika'])}
-                                </MenuItem>
-                            )
-                        })}
-                    </Select>
-                    {isLoading && <FormHelperText>Loading ..</FormHelperText>}
-                </FormControl>
+                : !error ?
+                    <FormControl className={classes.formControl}>
+                        <InputLabel id="demo-simple-select-label">Region</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={value}
+                            onChange={handleChange}
+                        >
+                            {items.map(el => {
+                                return (
+                                    <MenuItem key={el['klucz-slownika']} value={el['klucz-slownika']} >
+                                        {capitalizeFirstLetter(el['wartosc-slownika'])}
+                                    </MenuItem>
+                                )
+                            })}
+                        </Select>
+                        {isLoading && <FormHelperText>Loading ..</FormHelperText>}
+                    </FormControl>
+                    : <FormControl className={classes.formControl} error={true}>
+                        <InputLabel id="demo-simple-select-label">Region</InputLabel>
+                        <Select>
+                        </Select>
+                        <FormHelperText>Error occured. Refresh page.</FormHelperText>
+                    </FormControl>
             }
         </div>
     )

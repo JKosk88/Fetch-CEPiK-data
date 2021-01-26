@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import './App.css';
 import RegionDropdown from './RegionDropdown';
 import DateTypeDropdown from './DateTypeDropdown';
@@ -9,6 +9,8 @@ import NearMeIcon from '@material-ui/icons/NearMe';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import ResultsPerPageSlider from './ResultsPerPageSlider';
+import { DataContext } from './DataContext';
+import ErrorModal from './Error';
 
 const useStyles = makeStyles((theme) => ({
   app: {
@@ -39,13 +41,16 @@ function App() {
   const [dateTo, setDateTo] = useState(new Date());
   const [dateFrom, setDateFrom] = useState(new Date(new Date().setFullYear(new Date().getFullYear() - 2)));
   const [region, setRegion] = useState('XX');
+  const [regionsError, setRegionsError] = useState(false);
   const [dateType, setDateType] = useState('1');
   const [rows, setRows] = useState();
+  const [dataError, setDataError] = useState(false);
   const [querySent, setQuerySent] = useState(false);
   const [resultsPerPage, setResultsPerPage] = useState(100);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(0);
 
+  const [data, setData] = useContext(DataContext)
 
   const maxDate = new Date(new Date(dateFrom).setFullYear(new Date(dateFrom).getFullYear() + 2));
   const classes = useStyles();
@@ -87,6 +92,7 @@ function App() {
   }, [page])
 
   const sendRequest = () => {
+    setDataError(false);
     let url = `https://api.cepik.gov.pl/pojazdy?wojewodztwo=${region}&data-od=${formatDate(dateFrom)}&data-do=${formatDate(dateTo)}&typ-daty=${dateType}&limit=${resultsPerPage}&page=${page}`
     let _rows = [];
     setRowsLoading(true);
@@ -101,11 +107,16 @@ function App() {
           _rows.push(createData(car['attributes']['marka'], car['attributes']['model'], car['attributes']['rok-produkcji'], car['attributes']['pojemnosc-skokowa-silnika'], car['attributes']['rodzaj-paliwa'], car['attributes']['masa-wlasna'], car['links']['self']));
         })
       })
-      .then(() => setRows(_rows))
+      .then(() => setData(_rows))
       .then(() => setRowsLoading(false))
+      .catch(err => {
+        setDataError(true);
+        console.log(err);
+      })
   }
 
   useEffect(() => {
+    setRegionsError(false)
     fetch('https://api.cepik.gov.pl/slowniki/wojewodztwa')
       .then(response => response.json())
       .then(resp => {
@@ -115,13 +126,16 @@ function App() {
         setRegions(data);
         setIsLoading(false);
       })
-      .catch(err => { console.log(err) })
+      .catch(err => {
+        console.log(err, 'App.js xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+        setRegionsError(true);
+      })
   }, []);
 
   return (
     <div className={classes.app}>
       <div className={classes.form}>
-        <RegionDropdown value={region} onChange={handleRegionChange} items={regions} isLoading={isLoading} />
+        <RegionDropdown value={region} onChange={handleRegionChange} items={regions} isLoading={isLoading} error={regionsError} />
         <Datepicker value={dateFrom} onChange={handleDateFromChange} label='From *' maxDate={new Date()} />
         <DateTypeDropdown value={dateType} onChange={handleDateTypeChange} />
         <Datepicker value={dateTo} onChange={handleDateToChange} label='To *' maxDate={maxDate} />
@@ -132,12 +146,18 @@ function App() {
           className={classes.button}
           onClick={sendRequest}
           endIcon={<NearMeIcon />}
+          disabled={(regionsError)}
         >
           Send
         </Button>
       </div>
-      <DataTable rows={rows} rowsLoading={rowsLoading} querySent={querySent} />
-      {(querySent && !isLoading && !rowsLoading) && <TableFooterPagination nextPage={() => changePage(1)} prevPage={() => changePage(-1)} pages={pages} page={page} firstPage={firstPage} lastPage={lastPage} />}
+      {regionsError ?
+        <ErrorModal open={false} hint={'Error occured when fetching regions data. Refrech page and try again.'} />
+        : dataError ?
+          <ErrorModal open={false} hint={'Error occured when fetching data. Send request and try again'} />
+          : <DataTable rowsLoading={rowsLoading} querySent={querySent} error={dataError} />
+      }
+      {(querySent && !isLoading && !rowsLoading && !dataError && !regionsError) && <TableFooterPagination nextPage={() => changePage(1)} prevPage={() => changePage(-1)} pages={pages} page={page} firstPage={firstPage} lastPage={lastPage} />}
     </div>
   );
 }
