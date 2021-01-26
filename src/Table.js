@@ -13,7 +13,7 @@ import IconButton from "@material-ui/core/IconButton";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { DataContext, DataProvider } from './DataContext';
+import { DataContext } from './DataContext';
 
 const columns = [
     { id: 'mark', label: 'Mark', minWidth: 170 },
@@ -36,8 +36,6 @@ const useStyles = makeStyles({
 export default function DataTable({ rowsLoading, querySent, error }) {
     const [data, setData] = useContext(DataContext);
     const classes = useStyles();
-
-    console.log(error, 'Table.js wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww')
 
     return (
         <TableContainer className={classes.container}>
@@ -76,15 +74,12 @@ export default function DataTable({ rowsLoading, querySent, error }) {
                                 })}
                             </TableBody>
                             : <TableBody>
-                                {/* <TableRow> */}
                                 <TableCell>
 
                                 </TableCell>
                                 <TableCell>
                                     Error occured during fetching data. Try again.
                                 </TableCell>
-                                {/* </TableRow> */}
-                                {/* <div>error in data</div> */}
                             </TableBody>
                         : ''
                 }

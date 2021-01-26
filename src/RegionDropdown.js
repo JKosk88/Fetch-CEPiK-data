@@ -25,8 +25,6 @@ const RegionDropdown = ({ items, isLoading, onChange, value, error }) => {
         onChange(e);
     }
 
-    console.log(error, 'Dropdown.js yyyyyyyyyyyyyyyyyyyyyyyyyyy');
-
     const classes = useStyles();
 
     return (

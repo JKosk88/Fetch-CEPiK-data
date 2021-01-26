@@ -43,7 +43,6 @@ function App() {
   const [region, setRegion] = useState('XX');
   const [regionsError, setRegionsError] = useState(false);
   const [dateType, setDateType] = useState('1');
-  const [rows, setRows] = useState();
   const [dataError, setDataError] = useState(false);
   const [querySent, setQuerySent] = useState(false);
   const [resultsPerPage, setResultsPerPage] = useState(100);
@@ -127,7 +126,7 @@ function App() {
         setIsLoading(false);
       })
       .catch(err => {
-        console.log(err, 'App.js xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+        console.log(err);
         setRegionsError(true);
       })
   }, []);
